@@ -1,5 +1,5 @@
-# Stock & index dashboard (R Shiny)
-This is a simple dashboard designed to visualize various stock & index prices.
+# Stock & index dashboard
+This is a simple dashboard designed to visualize various stock & index prices. There are two versions of it: one is written in R (Shiny) and the other is written in Python (Dash).
 
 ## Key features:
 - Displays stocks & indices on separate graphs (limited to one stock and index at a time).
@@ -8,4 +8,6 @@ This is a simple dashboard designed to visualize various stock & index prices.
 - User specified time period for the visualizations.
 - Dynamic user interface that updates based on user inputs.
 
-A live demonstration of the dash board is hosted on shinyapps.io located [here](https://goldenknight09.shinyapps.io/stock_price_dashboard/?_ga=2.99946782.1012274847.1660850594-1658273700.1659625255). ***<- Update this with new link when re-publishing to shinyapps.***
+## Live demonstrations of the dashboard are hosted on:
+R: shinyapps.io located [here](https://goldenknight09.shinyapps.io/stock_price_dashboard/?_ga=2.99946782.1012274847.1660850594-1658273700.1659625255). ***<- Update this with new link when re-publishing to shinyapps.***
+Python: TBD located somewhere TBD.
