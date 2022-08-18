@@ -6,3 +6,5 @@ This is a simple dashboard designed to visualize various stock & index prices.
 - Pricing information is displayed using either candlestick (full pricing information) or line (closing price only) visualizations.
   - A visualization of the moving average of the closing price (with a user defined period) can also be added to the candlestick visualization.
 - User specified time period for the visualizations.
+
+A live demonstration of the dash board is hosted on shinyapps.io located here.
