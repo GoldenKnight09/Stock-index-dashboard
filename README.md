@@ -8,6 +8,7 @@ This is a simple dashboard designed to visualize various stock & index prices. T
 - User specified time period for the visualizations.
 - Dynamic user interface that updates based on user inputs.
 
-## Live demonstrations of the dashboard are hosted on:
+## Live demonstrations of the dashboard in each programming language are hosted on:
 R: shinyapps.io located [here](https://goldenknight09.shinyapps.io/stock_price_dashboard/?_ga=2.99946782.1012274847.1660850594-1658273700.1659625255). ***<- Update this with new link when re-publishing to shinyapps.***
+
 Python: TBD located somewhere TBD.
