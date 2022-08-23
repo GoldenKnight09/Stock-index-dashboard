@@ -11,7 +11,6 @@ shinyUI(
              wellPanel(
                radioButtons(inputId = 'stock_plot_type',
                             label = 'Select plot type:',
-                            # label = h4(HTML(paste0("<b>",'Select plot type:',"</b>"))),
                             choices = c('Candlestick plot' = 'candle',
                                         'Closing data only' = 'closing'),
                             selected = 'candle',
@@ -73,6 +72,7 @@ shinyUI(
                                                              'Target' = 'TGT',
                                                              'Walmart' = 'WMT')),
                            selected = 'AAPL'),
+               tags$style(type='text/css', ".selectize-dropdown-content {max-height: 300px; }"),
                radioButtons(inputId = 'stock_plot_date_select',
                             label = 'Specify date entry type:',
                             choices = c('Date range' = 'stock_date_range',
@@ -82,7 +82,6 @@ shinyUI(
                conditionalPanel(condition = "input.stock_plot_date_select == 'stock_days_back'",
                                 numericInput(inputId = 'stock_tail_days',
                                              label = '# of days to display back from today (min 2):',
-                                             # add if statement as pseudo try/catch in server to handle input < 3 days
                                              30,
                                              min = 2)),
                conditionalPanel(condition = "input.stock_plot_date_select == 'stock_date_range'",
@@ -92,7 +91,6 @@ shinyUI(
                                                end = Sys.Date(),
                                                max = Sys.Date())),
                conditionalPanel(condition = "input.stock_plot_date_select == 'stock_date_range'",
-                                # style="display: inline-block;",
                                 actionButton(inputId = 'stock_date_reset_button',
                                              label = 'Reset to default dates')),
                conditionalPanel(condition = "input.stock_plot_type == 'candle'",
@@ -102,7 +100,6 @@ shinyUI(
                conditionalPanel(condition = "input.moving_average_check == 1",
                                 numericInput(inputId = 'moving_average_days',
                                              label = '# of days to use for moving average (min 2):',
-                                             # add if statement as pseudo try/catch in server to handle input < 3 days
                                              7,
                                              min = 2))
                )
@@ -163,6 +160,7 @@ shinyUI(
       column(6, plotOutput('index_plot')),
       column(3,
              wellPanel(
+               # h4('Summary Table'),
                h4(textOutput('index_summary_table_title')),
                tableOutput('index_summary_table'))
              )
