@@ -88,6 +88,67 @@ index_chart_title <- function(selected_index) {
   return(index_name)
 }
 
+construct_data_table <- function(summary_data_max_high,
+                                 summary_data_max_close,
+                                 summary_data_min_close,
+                                 summary_data_min_low,
+                                 y_label) {
+  for (max_high in 1:dim(summary_data_max_high)[1]) {
+    if (max_high == 1) {
+      max_high_data <- data.frame(label = 'Maximum Price',
+                                        Date = summary_data_max_high$Date[max_high],
+                                        price_placeholder = summary_data_max_high$High[max_high])
+    } else {
+      max_high_data_vector <- data.frame(label = '',
+                                               Date = summary_data_max_high$Date[max_high],
+                                               price_placeholder = summary_data_max_high$High[max_high])
+      max_high_data <- rbind(max_high_data,max_high_data_vector)
+    }
+  }
+  for (max_close in 1:dim(summary_data_max_close)[1]) {
+    if (max_close == 1) {
+      max_close_data <- data.frame(label = 'Maximum Closing Price',
+                                         Date = summary_data_max_close$Date[max_close],
+                                         price_placeholder = summary_data_max_close$Close[max_close])
+    } else {
+      max_close_data_vector <- data.frame(label = '',
+                                                Date = summary_data_max_close$Date[max_close],
+                                                price_placeholder = summary_data_max_close$Close[max_close])
+      max_close_data <- rbind(max_close_data,max_close_data_vector)
+    }
+  }
+  for (min_close in 1:dim(summary_data_min_close)[1]) {
+    if (min_close == 1) {
+      min_close_data <- data.frame(label = 'Minimum Closing Price',
+                                         Date = summary_data_min_close$Date[min_close],
+                                         price_placeholder = summary_data_min_close$Close[min_close])
+    } else {
+      min_close_data_vector <- data.frame(label = '',
+                                                Date = summary_data_min_close$Date[min_close],
+                                                price_placeholder = summary_data_min_close$Close[min_close])
+      min_close_data <- rbind(min_close_data,min_close_data_vector)
+    }
+  }
+  for (min_low in 1:dim(summary_data_min_low)[1]) {
+    if (min_low == 1) {
+      min_low_data <- data.frame(label = 'Miniumum Price',
+                                       Date = summary_data_min_low$Date[min_low],
+                                       price_placeholder = summary_data_min_low$Low[min_low])
+    } else {
+      min_low_data_vector <- data.frame(label = '',
+                                              Date = summary_data_min_low$Date[min_low],
+                                              price_placeholder = summary_data_min_low$Low[min_low])
+      min_low_data <- rbind(min_low_data,min_low_data_vector)
+    }
+  }
+  plot_data_summary <- rbind(max_high_data, max_close_data, min_close_data, min_low_data)
+  Price_column_new_name <- c(' ',y_label)
+  plot_data_summary <- plot_data_summary %>%
+    rename_with(~Price_column_new_name,.cols = c('label','price_placeholder'))
+  plot_data_summary$Date <- format(plot_data_summary$Date, '%m-%d-%y')
+  return(plot_data_summary)
+}
+
 shinyServer(function(input, output, session) {
   stock_to_listen <- reactive({
     list(input$stock_plot_type,
@@ -121,7 +182,6 @@ shinyServer(function(input, output, session) {
       stock_moving_average_data <- stock_data %>%
         tail(dim(stock_plot_data)[1] + moving_average_days)
     }
-    format_digits <- 0
     if (input$stock_ticker == 'BAS.DE' ||
         input$stock_ticker == 'AI.PA' ||
         input$stock_ticker == 'BAYN.DE' ||
@@ -134,7 +194,8 @@ shinyServer(function(input, output, session) {
           input$stock_ticker == 'JMAT.L' ||
           input$stock_ticker == 'SHEL.L') {
         y_label <- 'Price (£)'
-        format_digits <- 2
+        # Stock prices on London Stock Exchange are reported in pence (£0.01), not pounds.
+        # Need to divide by 100 to convert to pounds.
         for (column_name in colnames(stock_plot_data)) {
           if (column_name == 'Open' ||
               column_name == 'High' ||
@@ -169,18 +230,22 @@ shinyServer(function(input, output, session) {
           } else {
             if (input$stock_ticker == 'NESN.SW' ||
                 input$stock_ticker == 'ROG.SW') {
-              y_label <- 'Price (CHF)'
+              y_label <- 'Price (CHF)' # Swiss Francs
               } else {
                 if (input$stock_ticker == '0386.HK' ||
                     input$stock_ticker == '0857.HK') {
                   y_label <- 'Price (HK$)'
-                  format_digits <- 2
                 } else {
                   y_label <- 'Price ($)'
                 }
               }
           }
       }
+    }
+    if (max(stock_plot_data$High) - min(stock_plot_data$Low) < 5) {
+      format_digits <- 2
+    } else {
+      format_digits <- 0
     }
     output$stock_plot <- renderPlot({
       stock_plot <- ggplot(data = stock_plot_data, aes(x=Date, y = Close)) +
@@ -211,63 +276,14 @@ shinyServer(function(input, output, session) {
     stock_summary_data_min_close <- stock_summary_data %>%
       filter(Close == min(Close)) %>%
       filter(Volume > 0)
-    stock_summary_data_min_Low <- stock_summary_data %>%
+    stock_summary_data_min_low <- stock_summary_data %>%
       filter(Low == min(Low)) %>%
       filter(Volume > 0)
-    for (max_high in 1:dim(stock_summary_data_max_high)[1]) {
-      if (max_high == 1) {
-        stock_max_high_data <- data.frame(label = 'Maximum Price',
-                                          Date = stock_summary_data_max_high$Date[max_high],
-                                          price_placeholder = stock_summary_data_max_high$High[max_high])
-      } else {
-        stock_max_high_data_vector <- data.frame(label = '',
-                                                 Date = stock_summary_data_max_high$Date[max_high],
-                                                 price_placeholder = stock_summary_data_max_high$High[max_high])
-        stock_max_high_data <- rbind(stock_max_high_data,stock_max_high_data_vector)
-      }
-    }
-    for (max_close in 1:dim(stock_summary_data_max_close)[1]) {
-      if (max_close == 1) {
-        stock_max_close_data <- data.frame(label = 'Maximum Closing Price',
-                                           Date = stock_summary_data_max_close$Date[max_close],
-                                           price_placeholder = stock_summary_data_max_close$Close[max_close])
-      } else {
-        stock_max_close_data_vector <- data.frame(label = '',
-                                                  Date = stock_summary_data_max_close$Date[max_close],
-                                                  price_placeholder = stock_summary_data_max_close$Close[max_close])
-        stock_max_close_data <- rbind(stock_max_close_data,stock_max_close_data_vector)
-      }
-    }
-    for (min_close in 1:dim(stock_summary_data_min_close)[1]) {
-      if (min_close == 1) {
-        stock_min_close_data <- data.frame(label = 'Minimum Closing Price',
-                                           Date = stock_summary_data_min_close$Date[min_close],
-                                           price_placeholder = stock_summary_data_min_close$Close[min_close])
-      } else {
-        stock_min_close_data_vector <- data.frame(label = '',
-                                                  Date = stock_summary_data_min_close$Date[min_close],
-                                                  price_placeholder = stock_summary_data_min_close$Close[min_close])
-        stock_min_close_data <- rbind(stock_min_close_data,stock_min_close_data_vector)
-      }
-    }
-    for (min_low in 1:dim(stock_summary_data_min_Low)[1]) {
-      if (min_low == 1) {
-        stock_min_low_data <- data.frame(label = 'Miniumum Price',
-                                         Date = stock_summary_data_min_Low$Date[min_low],
-                                         price_placeholder = stock_summary_data_min_Low$Low[min_low])
-      } else {
-        stock_min_low_data_vector <- data.frame(label = '',
-                                                Date = stock_summary_data_min_Low$Date[min_low],
-                                                price_placeholder = stock_summary_data_min_Low$Low[min_low])
-        stock_min_low_data <- rbind(stock_min_low_data,stock_min_low_data_vector)
-      }
-    }
-    stock_plot_data_summary <- rbind(stock_max_high_data, stock_max_close_data, stock_min_close_data, stock_min_low_data)
-    Price_column_new_name <- c(' ',y_label)
-    stock_plot_data_summary <- stock_plot_data_summary %>%
-      rename_with(~Price_column_new_name,.cols = c('label','price_placeholder'))
-    # stock_plot_data_summary$Date <- format(stock_plot_data_summary$Date, '%Y-%m-%d')
-    stock_plot_data_summary$Date <- format(stock_plot_data_summary$Date, '%m-%d-%y')
+    stock_plot_data_summary <- construct_data_table(stock_summary_data_max_high,
+                                                     stock_summary_data_max_close,
+                                                     stock_summary_data_min_close,
+                                                     stock_summary_data_min_low,
+                                                     y_label)
     output$stock_summary_table_title <- renderText(paste0(stock_chart_title(input$stock_ticker),' summary table'))
     output$stock_summary_table <- renderTable(stock_plot_data_summary)
   })
@@ -346,59 +362,11 @@ shinyServer(function(input, output, session) {
     index_summary_data_min_low <- index_plot_data %>%
       filter(Low == min(Low)) %>%
       filter(Volume >0)
-    for (max_high in 1:dim(index_summary_data_max_high)[1]) {
-      if (max_high == 1) {
-        index_max_high_data <- data.frame(label = 'Maximum Price',
-                                          Date = index_summary_data_max_high$Date[max_high],
-                                          price_placeholder = index_summary_data_max_high$High[max_high])
-      } else {
-        index_max_high_data_vector <- data.frame(label = '',
-                                                 Date = index_summary_data_max_high$Date[max_high],
-                                                 price_placeholder = index_summary_data_max_high$High[max_high])
-        index_max_high_data <- rbind(index_max_high_data,index_max_high_data_vector)
-      }
-    }
-    for (max_close in 1:dim(index_summary_data_max_close)[1]) {
-      if (max_close == 1) {
-        index_max_close_data <- data.frame(label = 'Maximum Closing Price',
-                                           Date = index_summary_data_max_close$Date[max_close],
-                                           price_placeholder = index_summary_data_max_close$Close[max_close])
-      } else {
-        index_max_close_data_vector <- data.frame(label = '',
-                                                  Date = index_summary_data_max_close$Date[max_close],
-                                                  price_placeholder = index_summary_data_max_close$Close[max_close])
-        index_max_close_data <- rbind(index_max_close_data,index_max_close_data_vector)
-      }
-    }
-    for (min_close in 1:dim(index_summary_data_min_close)[1]) {
-      if (min_close == 1) {
-        index_min_close_data <- data.frame(label = 'Minimum Closing Price',
-                                           Date = index_summary_data_min_close$Date[min_close],
-                                           price_placeholder = index_summary_data_min_close$Close[min_close])
-      } else {
-        index_min_close_data_vector <- data.frame(label = '',
-                                                  Date = index_summary_data_min_close$Date[min_close],
-                                                  price_placeholder = index_summary_data_min_close$Close[min_close])
-        index_min_close_data <- rbind(index_min_close_data,index_min_close_data_vector)
-      }
-    }
-    for (min_low in 1:dim(index_summary_data_min_low)[1]) {
-      if (min_low == 1) {
-        index_min_low_data <- data.frame(label = 'Miniumum Price',
-                                         Date = index_summary_data_min_low$Date[min_low],
-                                         price_placeholder = index_summary_data_min_low$Low[min_low])
-      } else {
-        index_min_low_data_vector <- data.frame(label = '',
-                                                Date = index_summary_data_min_low$Date[min_low],
-                                                price_placeholder = index_summary_data_min_low$Low[min_low])
-        index_min_low_data <- rbind(index_min_low_data,index_min_low_data_vector)
-      }
-    }
-    index_plot_data_summary <- rbind(index_max_high_data, index_max_close_data, index_min_close_data, index_min_low_data)
-    Price_column_new_name <- c(' ',y_label)
-    index_plot_data_summary <- index_plot_data_summary %>%
-      rename_with(~Price_column_new_name,.cols = c('label','price_placeholder'))
-    index_plot_data_summary$Date <- format(index_plot_data_summary$Date, '%m-%d-%y')
+    index_plot_data_summary <- construct_data_table(index_summary_data_max_high,
+                                                    index_summary_data_max_close,
+                                                    index_summary_data_min_close,
+                                                    index_summary_data_min_low,
+                                                    y_label)
     output$index_summary_table_title <- renderText(paste0(index_chart_title(input$selected_index),' summary table'))
     output$index_summary_table <- renderTable(index_plot_data_summary)
   })
