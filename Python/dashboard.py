@@ -1,7 +1,7 @@
 import pandas as pd
 import dash
-from dash import html
-from dash import dcc
+from dash import html, dcc, dash_table
+from dash.dash_table.Format import Format, Scheme, Trim
 from dash.dependencies import Input, Output
 import yfinance as yf
 from datetime import date, timedelta
@@ -133,7 +133,7 @@ def stock_chart_y_label(ticker_symbol):
         case '4911.T' | '4042.T' | '4005.T' | '600028.SS' | '601857.SS':
             return 'Price (¥)'
         case 'NESN.SW' | 'ROG.SW':
-            return 'Price (CHF)'
+            return 'Price (CHF)' # Swiss Francs
         case '0386.HK' | '0857.HK':
             return 'Price (HK$)'
         case _:
@@ -174,6 +174,58 @@ def index_chart_y_label(ticker_symbol):
             return 'Price (HK$)'
         case _:
             return 'Price ($)'
+        
+def construct_data_table(summary_data_max_high,summary_data_max_close,summary_data_min_close,summary_data_min_low,y_label):
+    for max_high in range(0,len(summary_data_max_high)):
+        if max_high == 0:
+            max_high_data = pd.DataFrame(data = {' ':'Maximum Price',
+                                                  'Date':summary_data_max_high.loc[max_high,'Date'].date().strftime("%m-%d-%Y"),
+                                                  y_label:summary_data_max_high.loc[max_high,'High']},
+                                         index = [max_high])
+        else:
+            max_high_data_vector = pd.DataFrame(data = {' ':'',
+                                                        'Date':summary_data_max_high.loc[max_high,'Date'].date().strftime("%m-%d-%Y"),
+                                                        y_label:summary_data_max_high.loc[max_high,'High']},
+                                                index = [max_high])
+            max_high_data = pd.concat([max_high_data, max_high_data_vector], ignore_index = True)
+    for max_close in range(0,len(summary_data_max_close)):
+        if max_close == 0:
+            max_close_data = pd.DataFrame(data = {' ':'Maximum Closing Price',
+                                                  'Date':summary_data_max_close.loc[max_close,'Date'].date().strftime("%m-%d-%Y"),
+                                                  y_label:summary_data_max_close.loc[max_close,'Close']},
+                                          index = [max_close])
+        else:
+            max_close_data_vector = pd.DataFrame(data = {' ':'',
+                                                         'Date':summary_data_max_close.loc[max_close,'Date'].date().strftime("%m-%d-%Y"),
+                                                         y_label:summary_data_max_close.loc[max_close,'Close']},
+                                                 index = [max_close])
+            max_close_data = pd.concat([max_close_data, max_close_data_vector], ignore_index = True)
+    for min_close in range(0,len(summary_data_min_close)):
+        if min_close == 0:
+            min_close_data = pd.DataFrame(data = {' ':'Minimum Closing Price',
+                                                  'Date':summary_data_min_close.loc[min_close,'Date'].date().strftime("%m-%d-%Y"),
+                                                  y_label:summary_data_min_close.loc[min_close,'Close']},
+                                          index = [min_close])
+        else:
+            min_close_data_vector = pd.DataFrame(data = {' ':'',
+                                                         'Date':summary_data_min_close.loc[min_close,'Date'].date().strftime("%m-%d-%Y"),
+                                                         y_label:summary_data_min_close.loc[min_close,'Close']},
+                                                 index = [min_close])
+            min_close_data = pd.concat([min_close_data, min_close_data_vector], ignore_index = True)
+    for min_low in range(0,len(summary_data_min_low)):
+        if min_low == 0:
+            min_low_data = pd.DataFrame(data = {' ':'Minimum Price',
+                                                  'Date':summary_data_min_low.loc[min_low,'Date'].date().strftime("%m-%d-%Y"),
+                                                  y_label:summary_data_min_low.loc[min_low,'Low']},
+                                        index = [min_low])
+        else:
+            min_low_data_vector = pd.DataFrame(data = {' ':'',
+                                                       'Date':summary_data_min_low.loc[min_low,'Date'].date().strftime("%m-%d-%Y"),
+                                                       y_label:summary_data_min_low.loc[min_low,'Low']},
+                                               index = [min_low])
+            min_low_data = pd.concat([min_low_data, min_low_data_vector], ignore_index = True)
+    plot_data_summary = pd.concat([max_high_data, max_close_data, min_close_data, min_low_data], ignore_index = True)
+    return plot_data_summary
 
 app = dash.Dash(__name__)
 
@@ -284,8 +336,11 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                                                                                 start_date = date.today() - timedelta(days = 30),
                                                                                                 end_date = date.today(),
                                                                                                 max_date_allowed = date.today(),
-                                                                                                style = {})
-                                                                            ]),
+                                                                                                style = {}),
+                                                                            html.Button('Reset to default dates',
+                                                                                        id = 'stock_date_reset_button',
+                                                                                        n_clicks = 0,
+                                                                                        style = {})]),
                                                          html.Div(children=[html.Label(['Display closing price moving average?'],
                                                                                        id = 'moving_average_option_label'),
                                                                             dcc.RadioItems(id = 'moving_average_option',
@@ -306,14 +361,27 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                                                                       value = 7,
                                                                                       debounce = True)],
                                                                   style = {})],
-                                              style={'width':'24%',
-                                                     'display':'inline-block',
-                                                     'verticalAlign':'top',
-                                                     'margin-top':'55px'}),
+                                             style={'width':'24%',
+                                                    'display':'inline-block',
+                                                    'verticalAlign':'top',
+                                                    'margin-top':'55px'}),
                                     html.Div(children = dcc.Graph(id = 'stock_plot'),
-                                                       style={'width':'49%',
-                                                              'display':'inline-block',
-                                                              'margin-left':'10px'})]),
+                                             style={'width':'49%',
+                                                    'display':'inline-block',
+                                                    'margin-left':'10px'}),
+                                    html.Div(children = [html.Div(id = 'stock_summary_table_title',
+                                                                  style={'font-size':30,
+                                                                         'margin-top':'10px',
+                                                                         'margin-bottom':'15px'}),
+                                                         dash_table.DataTable(id = 'stock_summary_table',
+                                                                             columns = [{'name':'Column 1','id':'column1'},
+                                                                                        {'name':'Column 2','id':'column2'},
+                                                                                        {'name':'Column 3','id':'column3'}],
+                                                                             data=[])],
+                                             style={'width':'24%',
+                                                    'display':'inline-block',
+                                                    'verticalAlign':'top',
+                                                    'font-size':22})]),
                                 html.Div(children=[
                                     html.Div(children=[html.Label(['Select plot type:'],
                                                                   style = {'font-weight':'bold',
@@ -375,8 +443,11 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                                                                               start_date = date.today() - timedelta(days = 30),
                                                                                               end_date = date.today(),
                                                                                               max_date_allowed = date.today(),
-                                                                                              style = {})
-                                                                          ])],
+                                                                                              style = {}),
+                                                                          html.Button('Reset to default dates',
+                                                                                      id = 'index_date_reset_button',
+                                                                                      n_clicks = 0,
+                                                                                      style = {})])],
                                              style = {'width':'24%',
                                                       'display':'inline-block',
                                                       'vertical-align':'top',
@@ -385,7 +456,20 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                              style = {'width':'49%',
                                                       'display':'inline-block',
                                                       'margin-top':'25px',
-                                                      'margin-left':'10px'})])])
+                                                      'margin-left':'10px'}),
+                                    html.Div(children = [html.Div(id = 'index_summary_table_title',
+                                                                  style={'font-size':30,
+                                                                         'margin-top':'35px',
+                                                                         'margin-bottom':'15px'}),
+                                                         dash_table.DataTable(id = 'index_summary_table',
+                                                                             columns = [{'name':'Column 1','id':'column1'},
+                                                                                        {'name':'Column 2','id':'column2'},
+                                                                                        {'name':'Column 3','id':'column3'}],
+                                                                             data=[])],
+                                             style={'width':'24%',
+                                                    'display':'inline-block',
+                                                    'verticalAlign':'top',
+                                                    'font-size':22})])])
                                 
 @app.callback(Output(component_id='moving_average_option_label',component_property='style'),
               Output(component_id='moving_average_option',component_property='style'),
@@ -396,7 +480,8 @@ def show_moving_average_option(stock_plot_type):
         return ({'font-size':28,'font-weight':'bold','margin-top':'20px','display':'block'},
                 {'font-size':24,'margin-top':'10px','display':'block'})
     if stock_plot_type == 'closing':
-        return {'display':'none'},{'display':'none'}
+        return ({'display':'none'},
+                {'display':'none'})
     
 @app.callback(Output(component_id='moving_average_days_label',component_property='style'),
               Output(component_id='moving_average_days',component_property='style'),
@@ -407,12 +492,14 @@ def show_moving_average(moving_average_option):
         return ({'font-size':28,'font-weight':'bold','margin-top':'20px','display':'block'},
                 {'font-size':24,'margin-top':'10px','display':'block'})
     if moving_average_option == 'do_not_display_MA':
-        return {'display':'none'},{'display':'none'}
+        return ({'display':'none'},
+                {'display':'none'})
     
 @app.callback(Output(component_id='stock_tail_days_label',component_property='style'),
               Output(component_id='stock_tail_days',component_property='style'),
               Output(component_id='stock_date_range_label',component_property='style'),
               Output(component_id='stock_date_range',component_property='style'),
+              Output(component_id='stock_date_reset_button',component_property='style'),
               Input(component_id='stock_plot_date_select',component_property='value'))
 
 def select_index_date_input(stock_plot_date_select):
@@ -420,17 +507,20 @@ def select_index_date_input(stock_plot_date_select):
         return ({'font-size':28,'font-weight':'bold','display':'block'},
                 {'font-size':22,'margin-top':'10px','display':'block'},
                 {'display':'none'},
+                {'display':'none'},
                 {'display':'none'})
     if stock_plot_date_select == 'stock_date_range':
         return ({'display':'none'},
                 {'display':'none'},
-                {'font-size':28,'font-weight':'bold','display':'block'},
-                {'font-size':22,'margin-top':'10px','display':'block'})
+                {'font-size':28,'font-weight':'bold','display':'inline-block'},
+                {'font-size':22,'margin-left':'20px','display':'inline-block'},
+                {'font-size':24,'margin-top':'10px','margin-left':'15px','display':'block'})
 
 @app.callback(Output(component_id='index_tail_days_label',component_property='style'),
               Output(component_id='index_tail_days',component_property='style'),
               Output(component_id='index_date_range_label',component_property='style'),
               Output(component_id='index_date_range',component_property='style'),
+              Output(component_id='index_date_reset_button',component_property='style'),
               Input(component_id='index_plot_date_select',component_property='value'))
 
 def select_index_date_input(index_plot_date_select):
@@ -438,14 +528,19 @@ def select_index_date_input(index_plot_date_select):
         return ({'font-size':28,'font-weight':'bold','display':'block'},
                 {'font-size':22,'margin-top':'10px','display':'block'},
                 {'display':'none'},
+                {'display':'none'},
                 {'display':'none'})
     if index_plot_date_select == 'index_date_range':
         return ({'display':'none'},
                 {'display':'none'},
-                {'font-size':28,'font-weight':'bold','display':'block'},
-                {'font-size':22,'margin-top':'10px','display':'block'})
+                {'font-size':28,'font-weight':'bold','display':'inline-block'},
+                {'font-size':22,'margin-left':'20px','display':'inline-block'},
+                {'font-size':24,'margin-top':'10px','margin-left':'15px','display':'block'})
                                 
 @app.callback(Output(component_id='stock_plot',component_property='figure'),
+              Output(component_id='stock_summary_table_title',component_property='children'),
+              Output(component_id='stock_summary_table',component_property='columns'),
+              Output(component_id='stock_summary_table',component_property='data'),
               Input(component_id='stock_plot_type',component_property='value'),
               Input(component_id='stock_ticker',component_property='value'),
               Input(component_id='stock_plot_date_select',component_property='value'),
@@ -459,24 +554,23 @@ def stock_plot(stock_plot_type,stock_ticker,stock_plot_date_select,stock_tail_da
     stock_data = get_stock_ticker_data(stock_ticker)
     if stock_plot_date_select == 'stock_days_back':
         today = date.today()
+        begin_date = today - timedelta(days = stock_tail_days)
         # stock_data 'Date' column is (pandas) datetime64[ns] where datetime objects are either (usually) datetime or date
         # convert datetime objects to pandas datetime objects to allow for comparison:
-        begin_date = today - timedelta(days = stock_tail_days)
-        pd_begin_date = pd.Timestamp(begin_date)
-        date_mask = stock_data['Date'] >= pd_begin_date
-        stock_data_date_masked = stock_data[date_mask]
+        stock_data_date_masked = stock_data.loc[stock_data['Date'] >= pd.Timestamp(begin_date)]
     if stock_plot_date_select == 'stock_date_range':
-        pd_begin_date = pd.Timestamp(start_date)
-        pd_end_date = pd.Timestamp(end_date)
-        date_mask = ((stock_data['Date'] >= pd_begin_date) & (stock_data['Date'] <= pd_end_date))
-        stock_data_date_masked = stock_data[date_mask]
+        stock_data_date_masked = stock_data.loc[((stock_data['Date'] >= pd.Timestamp(start_date)) & (stock_data['Date'] <= pd.Timestamp(end_date)))]
     y_label = stock_chart_y_label(stock_ticker)
     if (y_label == 'Price (£)'):
+        # Stock prices on London Stock Exchange are reported in pence (£0.01), not pounds.
+        # Need to divide by 100 to convert to pounds.
         pound_mask = ['Open', 'High','Low','Close']
         stock_plot_data = stock_data_date_masked.copy()
         stock_plot_data.loc[:,pound_mask] = stock_data_date_masked.loc[:,pound_mask] / 100
+        stock_summary_data = stock_plot_data
     else:
         stock_plot_data = stock_data_date_masked
+        stock_summary_data = stock_plot_data
     if (stock_plot_type == 'candle'):
         if (moving_average_option == 'display_MA'):
             MA_stock_data = stock_data.tail(len(stock_plot_data) + moving_average_days)
@@ -524,10 +618,33 @@ def stock_plot(stock_plot_type,stock_ticker,stock_plot_date_select,stock_tail_da
                      tickfont_size = 18)
     fig.update_yaxes(title_font_size = 22,
                      tickfont_size = 18)
-    return fig
+    if (max(stock_summary_data['High']) - min(stock_summary_data['Low']) < 5):
+        fig.update_yaxes(tickformat = '.2f')
+    summary_title = html.Label([f'{stock_chart_title(stock_ticker)}'+' summary table'])
+    stock_summary_data_max_high = stock_summary_data.loc[((stock_summary_data['High'] == max(stock_summary_data['High'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
+    stock_summary_data_max_close = stock_summary_data.loc[((stock_summary_data['Close'] == max(stock_summary_data['Close'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
+    stock_summary_data_min_close = stock_summary_data.loc[((stock_summary_data['Close'] == min(stock_summary_data['Close'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
+    stock_summary_data_min_low = stock_summary_data.loc[((stock_summary_data['Low'] == min(stock_summary_data['Low'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
+    stock_plot_data_summary = construct_data_table(stock_summary_data_max_high,stock_summary_data_max_close,stock_summary_data_min_close,stock_summary_data_min_low,y_label)
+    columns = [{'name':' ', 'id':' '},
+               {'name':'Date','id':'Date'},
+               {'name':y_label,'id':y_label,'type':'numeric','format':Format(precision=2, scheme = Scheme.fixed)}]
+    data = stock_plot_data_summary.to_dict(orient = 'records')
+    return fig, summary_title, columns, data
 
+@app.callback(Output(component_id='stock_date_range',component_property='start_date'),
+              Output(component_id='stock_date_range',component_property='end_date'),
+              Input(component_id='stock_date_reset_button',component_property='n_clicks'))
+
+def stock_date_reset(n_clicks):
+    start_date = date.today() - timedelta(days = 30)
+    end_date = date.today()
+    return start_date,end_date
 
 @app.callback(Output(component_id='index_plot',component_property='figure'),
+              Output(component_id='index_summary_table_title',component_property='children'),
+              Output(component_id='index_summary_table',component_property='columns'),
+              Output(component_id='index_summary_table',component_property='data'),
               Input(component_id='index_plot_type',component_property='value'),
               Input(component_id='index_ticker',component_property='value'),
               Input(component_id='index_plot_date_select',component_property='value'),
@@ -540,14 +657,9 @@ def index_plot(index_plot_type,index_ticker,index_plot_date_select,index_tail_da
     if index_plot_date_select == 'index_days_back':
         today = date.today()
         begin_date = today - timedelta(days = index_tail_days)
-        pd_begin_date = pd.Timestamp(begin_date)
-        date_mask = index_data['Date'] >= pd_begin_date
-        index_data_date_masked = index_data[date_mask]
+        index_data_date_masked = index_data.loc[index_data['Date'] >= pd.Timestamp(begin_date)]
     if index_plot_date_select == 'index_date_range':
-        pd_begin_date = pd.Timestamp(start_date)
-        pd_end_date = pd.Timestamp(end_date)
-        date_mask = ((index_data['Date'] >= pd_begin_date) & (index_data['Date'] <= pd_end_date))
-        index_data_date_masked = index_data[date_mask]
+        index_data_date_masked = index_data.loc[((index_data['Date'] >= pd.Timestamp(start_date)) & (index_data['Date'] <= pd.Timestamp(end_date)))]
     y_label = index_chart_y_label(index_ticker)
     index_plot_data = index_data_date_masked
     if (index_plot_type == 'candle'):
@@ -580,7 +692,28 @@ def index_plot(index_plot_type,index_ticker,index_plot_date_select,index_tail_da
                      tickfont_size = 18)
     fig.update_yaxes(title_font_size = 22,
                      tickfont_size = 18)
-    return fig
+    if max(index_plot_data['High'] > 10000):
+        fig.update_yaxes(tickformat = '000')
+    summary_title = html.Label([f'{index_chart_title(index_ticker)}'+' summary table'])
+    index_summary_data_max_high = index_plot_data.loc[((index_plot_data['High'] == max(index_plot_data['High'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
+    index_summary_data_max_close = index_plot_data.loc[((index_plot_data['Close'] == max(index_plot_data['Close'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
+    index_summary_data_min_close = index_plot_data.loc[((index_plot_data['Close'] == min(index_plot_data['Close'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
+    index_summary_data_min_low = index_plot_data.loc[((index_plot_data['Low'] == min(index_plot_data['Low'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
+    index_plot_data_summary = construct_data_table(index_summary_data_max_high,index_summary_data_max_close,index_summary_data_min_close,index_summary_data_min_low,y_label)
+    columns = [{'name':' ', 'id':' '},
+               {'name':'Date','id':'Date'},
+               {'name':y_label,'id':y_label,'type':'numeric','format':Format(precision=2, scheme = Scheme.fixed)}]
+    data = index_plot_data_summary.to_dict(orient = 'records')
+    return fig, summary_title, columns, data
+
+@app.callback(Output(component_id='index_date_range',component_property='start_date'),
+              Output(component_id='index_date_range',component_property='end_date'),
+              Input(component_id='index_date_reset_button',component_property='n_clicks'))
+
+def index_date_reset(n_clicks):
+    start_date = date.today() - timedelta(days = 30)
+    end_date = date.today()
+    return start_date,end_date
 
 if __name__ == '__main__':
     app.run_server()
