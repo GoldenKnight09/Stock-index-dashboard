@@ -158,7 +158,6 @@ shinyUI(
       column(6, plotOutput('index_plot')),
       column(3,
              wellPanel(
-               # h4('Summary Table'),
                h4(textOutput('index_summary_table_title')),
                tableOutput('index_summary_table'))
              )
