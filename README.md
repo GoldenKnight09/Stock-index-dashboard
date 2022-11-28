@@ -8,10 +8,10 @@ This is a simple dashboard designed to visualize various stock & index prices. T
 - User specified time period for the visualizations.
 - Dynamic user interface that updates based on user inputs.
 
-## Live demonstrations of the dashboard in each programming language:
+## Live demonstrations of the dashboard:
 R: hosted on shinyapps.io located [here](https://goldenknight09.shinyapps.io/stock_price_dashboard/).
 
-Python: TBD (Heroku was considered, but they announced on 8/25/22 that they were discontinuing their free service).
+Python: TBD
 
 ## Future plans:
-Utilize machine learning to attempt to predict future stock / index prices from historical data and include this prediction in the dashboard.
+Utilize predictive modeling and  machine learning to attempt to predict future stock / index prices from historical data and include this prediction in the dashboard.
