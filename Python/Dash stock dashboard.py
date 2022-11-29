@@ -72,15 +72,15 @@ def index_chart_y_label(ticker_symbol):
         
 def construct_data_table(summary_data_max_high,summary_data_max_close,summary_data_min_close,summary_data_min_low,y_label):
     for max_high in range(0,len(summary_data_max_high)):
-        # get number of high price maxima
+        # iterate through high price maxima
         if max_high == 0:
-            # if only one maxima
+            # if only one maxima / first maxima
             max_high_data = pd.DataFrame(data = {' ':'Maximum Price',
                                                   'Date':summary_data_max_high.loc[max_high,'Date'].date().strftime("%m-%d-%Y"),
                                                   y_label:summary_data_max_high.loc[max_high,'High']},
                                          index = [max_high])
         else:
-            # if multiple maxima
+            # additional local maxima
             max_high_data_vector = pd.DataFrame(data = {' ':'',
                                                         'Date':summary_data_max_high.loc[max_high,'Date'].date().strftime("%m-%d-%Y"),
                                                         y_label:summary_data_max_high.loc[max_high,'High']},
@@ -453,18 +453,27 @@ def stock_plot(stock_plot_type,stock_ticker,stock_plot_date_select,stock_tail_da
                           l = 80,
                           r = 80,
                           t = 60),
-                      showlegend = False)
+                      showlegend = False,
+                      plot_bgcolor = 'white')
     fig.update_xaxes(title_font_size = 22,
-                     tickfont_size = 18)
+                     tickfont_size = 18,
+                     showline = True, # plot area border line
+                     linecolor = 'black', # plot area border line color
+                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
+                     gridcolor = 'lightgray')
     fig.update_yaxes(title_font_size = 22,
-                     tickfont_size = 18)
+                     tickfont_size = 18,
+                     showline = True, # plot area border line
+                     linecolor = 'black', # plot area border line color
+                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
+                     gridcolor = 'lightgray')
     if (max(stock_summary_data['High']) - min(stock_summary_data['Low']) < 5):
         fig.update_yaxes(tickformat = '.2f')
     summary_title = html.Label([f'{stock_chart_title(stock_ticker)}'+' summary table'])
-    stock_summary_data_max_high = stock_summary_data.loc[((stock_summary_data['High'] == max(stock_summary_data['High'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
-    stock_summary_data_max_close = stock_summary_data.loc[((stock_summary_data['Close'] == max(stock_summary_data['Close'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
-    stock_summary_data_min_close = stock_summary_data.loc[((stock_summary_data['Close'] == min(stock_summary_data['Close'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
-    stock_summary_data_min_low = stock_summary_data.loc[((stock_summary_data['Low'] == min(stock_summary_data['Low'])) & (stock_summary_data['Volume']>0))].reset_index(drop = True)
+    stock_summary_data_max_high = stock_summary_data.loc[(stock_summary_data['High'] == max(stock_summary_data['High']))].reset_index(drop = True)
+    stock_summary_data_max_close = stock_summary_data.loc[(stock_summary_data['Close'] == max(stock_summary_data['Close']))].reset_index(drop = True)
+    stock_summary_data_min_close = stock_summary_data.loc[(stock_summary_data['Close'] == min(stock_summary_data['Close']))].reset_index(drop = True)
+    stock_summary_data_min_low = stock_summary_data.loc[(stock_summary_data['Low'] == min(stock_summary_data['Low']))].reset_index(drop = True)
     # get rows corresponding to maxima and minima stock values
     stock_plot_data_summary = construct_data_table(stock_summary_data_max_high,stock_summary_data_max_close,stock_summary_data_min_close,stock_summary_data_min_low,y_label)
     columns = [{'name':' ', 'id':' '},
@@ -528,18 +537,28 @@ def index_plot(index_plot_type,index_ticker,index_plot_date_select,index_tail_da
                           b = 60,
                           l = 80,
                           r = 80,
-                          t = 60))
+                          t = 60),
+                      plot_bgcolor = 'white')
     fig.update_xaxes(title_font_size = 22,
-                     tickfont_size = 18)
+                     tickfont_size = 18,
+                     showline = True, # plot area border line
+                     linecolor = 'black', # plot area border line color
+                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
+                     gridcolor = 'lightgray')
     fig.update_yaxes(title_font_size = 22,
-                     tickfont_size = 18)
+                     tickfont_size = 18,
+                     showline = True, # plot area border line
+                     linecolor = 'black', # plot area border line color
+                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
+                     gridcolor = 'lightgray')
     if max(index_plot_data['High'] > 10000):
         fig.update_yaxes(tickformat = '000')
     summary_title = html.Label([f'{index_chart_title(index_ticker)}'+' summary table'])
-    index_summary_data_max_high = index_plot_data.loc[((index_plot_data['High'] == max(index_plot_data['High'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
-    index_summary_data_max_close = index_plot_data.loc[((index_plot_data['Close'] == max(index_plot_data['Close'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
-    index_summary_data_min_close = index_plot_data.loc[((index_plot_data['Close'] == min(index_plot_data['Close'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
-    index_summary_data_min_low = index_plot_data.loc[((index_plot_data['Low'] == min(index_plot_data['Low'])) & (index_plot_data['Volume']>0))].reset_index(drop = True)
+    # Relax volume > 0 restriction on extrema, since Python yfinance package can download current day's data (volume may be 0)
+    index_summary_data_max_high = index_plot_data.loc[(index_plot_data['High'] == max(index_plot_data['High']))].reset_index(drop = True)
+    index_summary_data_max_close = index_plot_data.loc[(index_plot_data['Close'] == max(index_plot_data['Close']))].reset_index(drop = True)
+    index_summary_data_min_close = index_plot_data.loc[(index_plot_data['Close'] == min(index_plot_data['Close']))].reset_index(drop = True)
+    index_summary_data_min_low = index_plot_data.loc[(index_plot_data['Low'] == min(index_plot_data['Low']))].reset_index(drop = True)
     # get rows corresponding to maxima and minima index values
     index_plot_data_summary = construct_data_table(index_summary_data_max_high,index_summary_data_max_close,index_summary_data_min_close,index_summary_data_min_low,y_label)
     columns = [{'name':' ', 'id':' '},
