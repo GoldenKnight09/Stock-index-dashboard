@@ -14,12 +14,12 @@ import yfinance as yf
 from datetime import date, timedelta
 import plotly.graph_objects as go
 
-# Import list of index tickers and descriptions from a .csv file
+# Import list of index tickers and index names from a .csv file
 index_list = pd.read_csv('Index_list.csv', header = None)
 index_dict = dict(index_list.values)
 index_dropdown_list = list({'label':index_dict[index_key],'value':index_key} for index_key in index_dict.keys())
 
-# Import list of stock tickers and description from a .csv file
+# Import list of stock tickers and company names from a .csv file
 stock_list = pd.read_csv('Stock_list.csv', header = None)
 stock_dict = dict(stock_list.values)
 stock_dropdown_list = list({'label':stock_dict[stock_key],'value':stock_key} for stock_key in stock_dict.keys())
@@ -459,13 +459,12 @@ def stock_plot(stock_plot_type,stock_ticker,stock_plot_date_select,stock_tail_da
                      tickfont_size = 18,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
-                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
+                     # use mirror = True to mirror make a rectangle around complet plot area
                      gridcolor = 'lightgray')
     fig.update_yaxes(title_font_size = 22,
                      tickfont_size = 18,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
-                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
                      gridcolor = 'lightgray')
     if (max(stock_summary_data['High']) - min(stock_summary_data['Low']) < 5):
         fig.update_yaxes(tickformat = '.2f')
@@ -543,13 +542,11 @@ def index_plot(index_plot_type,index_ticker,index_plot_date_select,index_tail_da
                      tickfont_size = 18,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
-                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
                      gridcolor = 'lightgray')
     fig.update_yaxes(title_font_size = 22,
                      tickfont_size = 18,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
-                     mirror = False, # mirror to both parallel axes (otherwise just axis with tickmarks)
                      gridcolor = 'lightgray')
     if max(index_plot_data['High'] > 10000):
         fig.update_yaxes(tickformat = '000')
