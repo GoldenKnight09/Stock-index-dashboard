@@ -17,7 +17,7 @@ shinyUI(
                             inline = TRUE),
                selectInput(inputId = 'stock_ticker',
                            label = 'Select a company for stock price information:',
-                           choices = list('Consumer/Medical Goods' = list('Apple' = 'AAPL',
+                           choices = list('Consumer & Medical Goods' = list('Apple' = 'AAPL',
                                                                           'Becton, Dickinson and Company (BD)' = 'BDX',
                                                                           'Church & Dwight' = 'CHD',
                                                                           'Colgate-Palmolive' = 'CL',
@@ -107,6 +107,7 @@ shinyUI(
       column(6, plotOutput("stock_plot")),
       column(3,
              wellPanel(
+               # h4('Summary Table'),
                h4(textOutput('stock_summary_table_title')),
                tableOutput('stock_summary_table')) 
              )
@@ -152,12 +153,14 @@ shinyUI(
                                                start = Sys.Date() - 30,
                                                end = Sys.Date())),
                conditionalPanel(condition = "input.index_plot_date_select == 'index_date_range'",
+                                # style="display: inline-block;",
                                 actionButton(inputId = 'index_date_reset_button',
                                              label = 'Reset to default dates'))
              )),
       column(6, plotOutput('index_plot')),
       column(3,
              wellPanel(
+               # h4('Summary Table'),
                h4(textOutput('index_summary_table_title')),
                tableOutput('index_summary_table'))
              )

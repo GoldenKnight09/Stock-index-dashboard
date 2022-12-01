@@ -3,6 +3,7 @@ require(quantmod)
 require(tidyquant)
 require(dplyr)
 require(tidyr)
+require(readr)
 require(ggplot2)
 require(scales)
 
@@ -15,76 +16,18 @@ get_stock_ticker_data <- function (ticker_symbol) {
 }
 
 stock_chart_title <- function(ticker_symbol) {
-  company_name <- switch(ticker_symbol,
-                         'AI.PA' = 'Air Liquide (Euronext Paris)',
-                         'APD' = 'Air Products',
-                         'AMZN' = 'Amazon',
-                         'AMGN' = 'Amgen',
-                         'AAPL' = 'Apple',
-                         'BAS.DE' = 'BASF SE (Frankfurt Stock Exchange)',
-                         'BAYN.DE' = 'Bayer AG (Frankfurt Stock Exchange)',
-                         'BDX' = 'Becton, Dickinson and Company (BD)',
-                         'BP' = 'BP (NY Stock Exchange)',
-                         'BP.L' = 'BP (London Stock Exchange)',
-                         'BMY' = 'Bristol Myers Squibb',
-                         'CVX' = 'Chevron',
-                         # 'SNP' = 'China Petroleum & Chemical (Sinopec) (NY Stock Exchange)',
-                         '0386.HK' = 'China Petroleum & Chemical (Sinopec) (Hong Kong Stock Exchange)',
-                         '600028.SS' = 'China Petroleum & Chemical (Sinopec) (Shanghai Stock Exchange)',
-                         'CHD' = 'Church & Dwight',
-                         'CL' = 'Colgate-Palmolive',
-                         'COP' = 'ConocoPhillips',
-                         'DOW' = 'Dow',
-                         'DD' = 'DuPont',
-                         'EMN' = 'Eastman Chemical Company',
-                         'ECL' = 'Ecolab',
-                         'EVK.DE' = 'Evonik Industries AG (Frankfurt Stock Exchange)',
-                         'XOM' = 'ExxonMobil',
-                         'HUN' = 'Huntsman Corporation',
-                         'IFF' = 'IFF',
-                         'JNJ' = 'Johnson & Johnson',
-                         'JMAT.L' = 'Johnson Matthey (London Stock Exchange)',
-                         'K' = 'Kellogg Company',
-                         'KHC' = 'The Kraft Heinz Company',
-                         'LIN.DE' = 'Linde (Frankfurt Stock Exchange)',
-                         'LIN' = 'Linde (NY Stock Exchange)',
-                         'OR.PA' = "L'Oreal S.A (Euronext Paris)",
-                         'LYB' = 'LyondellBasell',
-                         'MPC' = 'Marathon Petroleum',
-                         'MRK' = 'Merck',
-                         'MMM' = '3M',
-                         'MDLZ' = 'Mondelez International',
-                         'NESN.SW' = 'Nestle S.A. (SIX Swiss Exchange)',
-                         # 'PTC' = 'PetroChina (NY Stock Exchange)',
-                         '0857.HK' = 'PetroChina (Hong Kong Stock Exchange)',
-                         '601857.SS' = 'PetroChina (Shanghai Stock Exchange)',
-                         'PFE' = 'Pfizer',
-                         'PG' = 'Proctor & Gamble',
-                         'ROG.SW' = 'Roche (SIX Swiss Exchange)',
-                         'SHEL' = 'Shell (NY Stock Exchange)',
-                         'SHEL.L' = 'Shell (London Stock Exchange)',
-                         '4991.T' = 'Shiseido (Tokyo Stock Exchange)',
-                         '4005.T' = 'Sumitomo Chemical (Tokyo Stock Exchange)',
-                         'TGT' = 'Target',
-                         'TSLA' = 'Tesla',
-                         '4042.T' = 'Tosoh (Tokyo Stock Exchange)',
-                         'UL' = 'Unilever',
-                         'WMT' = 'Walmart')
+  # Import list of stock tickers & company names from a .csv file
+  company_name_tibble <- read_csv('Stock_list.csv', col_names = c('ticker','description'), show_col_types = FALSE)
+  company_name_list <- with(company_name_tibble, split(description, factor(ticker, level = unique(ticker))))
+  company_name <- company_name_list[[ticker_symbol]]
   return(company_name)
 }
 
 index_chart_title <- function(selected_index) {
-  index_name <- switch(selected_index,
-                       '^GSPC' = 'S&P500 (NY Stock Exchange)',
-                       '^DJI' = 'Dow Jones (NY Stock Exchange)',
-                       '^IXIC' = 'NASDAQ (NY Stock Exchange)',
-                       '^NYA' = 'NYSE Composite (NY Stock Exchange)',
-                       '^GDAXI' = 'Dax Performance Index (Frankfurt Stock Exchange)',
-                       '^FTSE' = 'FTSE 100 (London Stock Exchange)',
-                       '^N225' = 'Nikkei 225 (Tokyo Stock Exchange)',
-                       '000001.SS' = 'Shanghai SE Composite Index (Shanghai Stock Exchange)',
-                       '000300.SS' = 'CSI 300 (Shanghai Stock Exchange)',
-                       '^HSI' = 'Hang Seng Index (Hong Kong Stock Exchange)')
+  # Import list of index tickers & index names from a .csv file
+  index_name_tibble <- read_csv('Index_list.csv', col_names = c('ticker','description'), show_col_types = FALSE)
+  index_name_list <- with(index_name_tibble, split(description, factor(ticker, level = unique(ticker))))
+  index_name <- index_name_list[[selected_index]]
   return(index_name)
 }
 
@@ -255,7 +198,10 @@ shinyServer(function(input, output, session) {
         theme(title = element_text(size = 18),
               plot.title = element_text(hjust = 0.5),
               axis.title = element_text(size = 18),
-              axis.text = element_text(size = 14))
+              axis.text = element_text(size = 14),
+              panel.background = element_rect(fill = 'white'), # make plot background white
+              panel.grid.major = element_line(color = 'lightgray'),
+              axis.line = element_line(color = 'black')) # add lines on the x- & y-axis
       if (input$stock_plot_type == 'candle') {
         if (input$moving_average_check == TRUE) {
           stock_plot + geom_candlestick(aes(open = Open, high = High, low = Low, close = Close), colour_up = 'darkseagreen', fill_up = 'darkseagreen') +
@@ -343,7 +289,10 @@ shinyServer(function(input, output, session) {
         theme(title = element_text(size = 18),
               plot.title = element_text(hjust = 0.5),
               axis.title = element_text(size = 18),
-              axis.text = element_text(size = 14))
+              axis.text = element_text(size = 14),
+              panel.background = element_rect(fill = 'white'), # make plot background white
+              panel.grid.major = element_line(color = 'lightgray'),
+              axis.line = element_line(color = 'black')) # add lines on the x- & y-axis
       if (input$index_plot_type == 'candle') {
         index_plot + geom_candlestick(aes(open = Open, high = High, low = Low, close = Close), colour_up = 'darkseagreen', fill_up = 'darkseagreen')  
       } else {
