@@ -11,7 +11,7 @@ This is a simple dashboard designed to visualize various stock & index prices. T
 ## Live demonstrations of the dashboard:
 R: hosted on shinyapps.io located [here](https://goldenknight09.shinyapps.io/stock_price_dashboard/).
 
-Python: TBD
+Python: hosted on Render located [here](https://stock-index-dashboard.onrender.com).
 
 ## Future plans:
 Utilize predictive modeling and  machine learning to attempt to predict future stock / index prices from historical data and include this prediction in the dashboard.
