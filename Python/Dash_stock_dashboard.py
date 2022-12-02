@@ -127,7 +127,7 @@ def construct_data_table(summary_data_max_high,summary_data_max_close,summary_da
     return plot_data_summary
 
 app = dash.Dash(__name__)
-
+server = app.server
 
 app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                         style = {'textAlign':'center','font-size':50}),
