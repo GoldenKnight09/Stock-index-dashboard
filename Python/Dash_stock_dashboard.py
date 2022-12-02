@@ -130,43 +130,43 @@ app = dash.Dash(__name__)
 server = app.server
 
 app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
-                                        style = {'textAlign':'center','font-size':50}),
+                                        style = {'textAlign':'center','font-size':30}),
                                 html.Div(children=[
                                     html.Div(children = [html.Label(['Select plot type:'],
                                                                     style = {'font-weight':'bold',
-                                                                             'font-size':28}),
+                                                                             'font-size':18}),
                                                          dcc.RadioItems(id='stock_plot_type',options=[{'label':'Candlestick plot','value':'candle'},
                                                                                                      {'label':'Closing data only','value':'closing'}],
                                                                         value = 'candle',
                                                                         inline = True,
                                                                         inputStyle = {'margin-right':'4px',
-                                                                                      'margin-left':'15px'},
-                                                                        style ={'font-size':24,
-                                                                                'margin-top':'10px',
-                                                                                'margin-bottom':'20px'}),
+                                                                                      'margin-left':'10px'},
+                                                                        style ={'font-size':16,
+                                                                                'margin-top':'4px',
+                                                                                'margin-bottom':'10px'}),
                                                          html.Label(['Select a company for stock price information:'],
                                                                     style = {'font-weight':'bold',
-                                                                             'font-size':28}),
+                                                                             'font-size':18}),
                                                          dcc.Dropdown(id='stock_ticker',
                                                                       options = stock_dropdown_list,                                                                      
                                                                       placeholder = 'Select a stock',
                                                                       value = 'AAPL',
                                                                       searchable = True,
-                                                                      style={'font-size':22,
-                                                                             'margin-top':'10px',
-                                                                             'margin-bottom':'20px'}),
+                                                                      style={'font-size':16,
+                                                                             'margin-top':'6px',
+                                                                             'margin-bottom':'13px'}),
                                                          html.Label(['Specify date entry type:'],
                                                                     style = {'font-weight':'bold',
-                                                                             'font-size':28}),
+                                                                             'font-size':18}),
                                                          dcc.RadioItems(id='stock_plot_date_select',options=[{'label':'Date range','value':'stock_date_range'},
                                                                                                              {'label':'Days back from now','value':'stock_days_back'}],
                                                                         value = 'stock_date_range',
                                                                         inline = True,
                                                                         inputStyle = {'margin-right':'4px',
-                                                                                      'margin-left':'15px'},
-                                                                        style ={'font-size':24,
-                                                                                'margin-top':'10px',
-                                                                                'margin-bottom':'20px'}),
+                                                                                      'margin-left':'10px'},
+                                                                        style ={'font-size':16,
+                                                                                'margin-top':'5px',
+                                                                                'margin-bottom':'8px'}),
                                                          html.Div(children=[html.Label(['# of days to display back from today (min 2):'],
                                                                                        id = 'stock_tail_days_label',
                                                                                        style = {}),
@@ -195,6 +195,7 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                                                                            options = [{'label':'Yes','value':'display_MA'},
                                                                                                       {'label':'No','value':'do_not_display_MA'}],
                                                                                            value = 'do_not_display_MA',
+                                                                                           inline = True,
                                                                                            labelStyle = {'display':'block'},
                                                                                            inputStyle = {'margin-right':'4px',
                                                                                                          'margin-left':'15px',
@@ -212,15 +213,15 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                              style={'width':'24%',
                                                     'display':'inline-block',
                                                     'verticalAlign':'top',
-                                                    'margin-top':'55px'}),
+                                                    'margin-top':'15px'}),
                                     html.Div(children = dcc.Graph(id = 'stock_plot'),
                                              style={'width':'49%',
                                                     'display':'inline-block',
                                                     'margin-left':'10px'}),
                                     html.Div(children = [html.Div(id = 'stock_summary_table_title',
-                                                                  style={'font-size':30,
+                                                                  style={'font-size':20,
                                                                          'margin-top':'10px',
-                                                                         'margin-bottom':'15px'}),
+                                                                         'margin-bottom':'10px'}),
                                                          dash_table.DataTable(id = 'stock_summary_table',
                                                                              columns = [{'name':'Column 1','id':'column1'},
                                                                                         {'name':'Column 2','id':'column2'},
@@ -229,43 +230,43 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                              style={'width':'24%',
                                                     'display':'inline-block',
                                                     'verticalAlign':'top',
-                                                    'font-size':22})]),
+                                                    'font-size':15})]),
                                 html.Div(children=[
                                     html.Div(children=[html.Label(['Select plot type:'],
                                                                   style = {'font-weight':'bold',
-                                                                           'font-size':28}),
+                                                                           'font-size':18}),
                                                        dcc.RadioItems(id='index_plot_type',options=[{'label':'Candlestick plot','value':'candle'},
                                                                                                     {'label':'Closing data only','value':'closing'}],
                                                                       value = 'candle',
                                                                       inline = True,
                                                                       inputStyle = {'margin-right':'4px',
                                                                                     'margin-left':'15px'},
-                                                                      style ={'font-size':24,
-                                                                              'margin-top':'10px',
-                                                                              'margin-bottom':'20px'}),
+                                                                      style ={'font-size':16,
+                                                                              'margin-top':'6px',
+                                                                              'margin-bottom':'10px'}),
                                                        html.Label(['Select stock exchange index for price information:'],
                                                                   style = {'font-weight':'bold',
-                                                                           'font-size':28}),
+                                                                           'font-size':18}),
                                                        dcc.Dropdown(id='index_ticker',
                                                                     options = index_dropdown_list,
                                                                     placeholder = 'Select an index',
                                                                     value = '^GSPC',
                                                                     searchable = True,
-                                                                    style = {'font-size':22,
-                                                                             'margin-top':'10px',
-                                                                             'margin-bottom':'20px'}),
+                                                                    style = {'font-size':16,
+                                                                             'margin-top':'6px',
+                                                                             'margin-bottom':'13px'}),
                                                        html.Label(['Specify date entry type:'],
                                                                   style = {'font-weight':'bold',
-                                                                           'font-size':28}),
+                                                                           'font-size':18}),
                                                        dcc.RadioItems(id='index_plot_date_select',options=[{'label':'Date range','value':'index_date_range'},
                                                                                                            {'label':'Days back from now','value':'index_days_back'}],
                                                                       value = 'index_date_range',
                                                                       inline = True,
                                                                       inputStyle = {'margin-right':'4px',
                                                                                     'margin-left':'15px'},
-                                                                      style ={'font-size':24,
-                                                                              'margin-top':'10px',
-                                                                              'margin-bottom':'20px'}),
+                                                                      style ={'font-size':16,
+                                                                              'margin-top':'5px',
+                                                                              'margin-bottom':'8px'}),
                                                        html.Div(children=[html.Label(['# of days to display back from today (min 2):'],
                                                                                      id = 'index_tail_days_label',
                                                                                      style = {}),
@@ -291,16 +292,16 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                              style = {'width':'24%',
                                                       'display':'inline-block',
                                                       'vertical-align':'top',
-                                                      'margin-top':'80px'}),
+                                                      'margin-top':'55px'}),
                                     html.Div(children = dcc.Graph(id = 'index_plot'),
                                              style = {'width':'49%',
                                                       'display':'inline-block',
                                                       'margin-top':'25px',
                                                       'margin-left':'10px'}),
                                     html.Div(children = [html.Div(id = 'index_summary_table_title',
-                                                                  style={'font-size':30,
-                                                                         'margin-top':'35px',
-                                                                         'margin-bottom':'15px'}),
+                                                                  style={'font-size':20,
+                                                                         'margin-top':'30px',
+                                                                         'margin-bottom':'10px'}),
                                                          dash_table.DataTable(id = 'index_summary_table',
                                                                              columns = [{'name':'Column 1','id':'column1'},
                                                                                         {'name':'Column 2','id':'column2'},
@@ -309,7 +310,7 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
                                              style={'width':'24%',
                                                     'display':'inline-block',
                                                     'verticalAlign':'top',
-                                                    'font-size':22})])])
+                                                    'font-size':15})])])
                                 
 @app.callback(Output(component_id='moving_average_option_label',component_property='style'),
               Output(component_id='moving_average_option',component_property='style'),
@@ -317,8 +318,8 @@ app.layout = html.Div(children=[html.H1('Stock/Index Price Dashboard',
 
 def show_moving_average_option(stock_plot_type):
     if stock_plot_type == 'candle':
-        return ({'font-size':28,'font-weight':'bold','margin-top':'20px','display':'block'},
-                {'font-size':24,'margin-top':'10px','display':'block'})
+        return ({'font-size':18,'font-weight':'bold','margin-top':'13px','display':'block'},
+                {'font-size':16,'margin-top':'6px','display':'block'})
     if stock_plot_type == 'closing':
         return ({'display':'none'},
                 {'display':'none'})
@@ -329,8 +330,8 @@ def show_moving_average_option(stock_plot_type):
 
 def show_moving_average(moving_average_option):
     if moving_average_option == 'display_MA':
-        return ({'font-size':28,'font-weight':'bold','margin-top':'20px','display':'block'},
-                {'font-size':24,'margin-top':'10px','display':'block'})
+        return ({'font-size':18,'font-weight':'bold','margin-top':'8px','display':'block'},
+                {'font-size':16,'margin-top':'6px','display':'block'})
     if moving_average_option == 'do_not_display_MA':
         return ({'display':'none'},
                 {'display':'none'})
@@ -342,19 +343,19 @@ def show_moving_average(moving_average_option):
               Output(component_id='stock_date_reset_button',component_property='style'),
               Input(component_id='stock_plot_date_select',component_property='value'))
 
-def select_index_date_input(stock_plot_date_select):
+def select_stock_date_input(stock_plot_date_select):
     if stock_plot_date_select == 'stock_days_back':
-        return ({'font-size':28,'font-weight':'bold','display':'block'},
-                {'font-size':22,'margin-top':'10px','display':'block'},
+        return ({'font-size':18,'font-weight':'bold','display':'block'},
+                {'font-size':15,'margin-top':'6px','display':'block'},
                 {'display':'none'},
                 {'display':'none'},
                 {'display':'none'})
     if stock_plot_date_select == 'stock_date_range':
         return ({'display':'none'},
                 {'display':'none'},
-                {'font-size':28,'font-weight':'bold','display':'inline-block'},
-                {'font-size':22,'margin-left':'20px','display':'inline-block'},
-                {'font-size':24,'margin-top':'10px','margin-left':'15px','display':'block'})
+                {'font-size':18,'font-weight':'bold','display':'inline-block'},
+                {'font-size':15,'margin-left':'13px','display':'inline-block'},
+                {'font-size':16,'margin-top':'6px','margin-left':'13px','display':'block'})
 
 @app.callback(Output(component_id='index_tail_days_label',component_property='style'),
               Output(component_id='index_tail_days',component_property='style'),
@@ -365,17 +366,17 @@ def select_index_date_input(stock_plot_date_select):
 
 def select_index_date_input(index_plot_date_select):
     if index_plot_date_select == 'index_days_back':
-        return ({'font-size':28,'font-weight':'bold','display':'block'},
-                {'font-size':22,'margin-top':'10px','display':'block'},
+        return ({'font-size':18,'font-weight':'bold','display':'block'},
+                {'font-size':15,'margin-top':'6px','display':'block'},
                 {'display':'none'},
                 {'display':'none'},
                 {'display':'none'})
     if index_plot_date_select == 'index_date_range':
         return ({'display':'none'},
                 {'display':'none'},
-                {'font-size':28,'font-weight':'bold','display':'inline-block'},
-                {'font-size':22,'margin-left':'20px','display':'inline-block'},
-                {'font-size':24,'margin-top':'10px','margin-left':'15px','display':'block'})
+                {'font-size':18,'font-weight':'bold','display':'inline-block'},
+                {'font-size':15,'margin-left':'13px','display':'inline-block'},
+                {'font-size':16,'margin-top':'6px','margin-left':'13px','display':'block'})
                                 
 @app.callback(Output(component_id='stock_plot',component_property='figure'),
               Output(component_id='stock_summary_table_title',component_property='children'),
@@ -442,27 +443,27 @@ def stock_plot(stock_plot_type,stock_ticker,stock_plot_date_select,stock_tail_da
                                line_color = 'black',
                                line_width = 2))
     fig.update_layout(title = f'<b>{stock_chart_title(stock_ticker)}</b>',
-                      title_font_size = 30,
+                      title_font_size = 20,
                       title_x=0.5,
                       xaxis_title = '<b>Date</b>',
                       yaxis_title = f'<b>{y_label}</b>',
                       xaxis_rangeslider_visible=False,
-                      height = 600,
+                      height = 430,
                       margin = dict(
-                          b = 60,
+                          b = 10,
                           l = 80,
                           r = 80,
-                          t = 60),
+                          t = 40),
                       showlegend = False,
                       plot_bgcolor = 'white')
-    fig.update_xaxes(title_font_size = 22,
-                     tickfont_size = 18,
+    fig.update_xaxes(title_font_size = 15,
+                     tickfont_size = 12,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
                      # use mirror = True to mirror make a rectangle around complet plot area
                      gridcolor = 'lightgray')
-    fig.update_yaxes(title_font_size = 22,
-                     tickfont_size = 18,
+    fig.update_yaxes(title_font_size = 15,
+                     tickfont_size = 12,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
                      gridcolor = 'lightgray')
@@ -526,25 +527,25 @@ def index_plot(index_plot_type,index_ticker,index_plot_date_select,index_tail_da
                                        line_color = 'black',
                                        line_width = 2)) 
     fig.update_layout(title = f'<b>{index_chart_title(index_ticker)}</b>',
-                      title_font_size = 30,
+                      title_font_size = 20,
                       title_x=0.5,
                       xaxis_title = '<b>Date</b>',
                       yaxis_title = f'<b>{y_label}</b>',
                       xaxis_rangeslider_visible=False,
-                      height = 600,
+                      height = 430,
                       margin = dict(
-                          b = 60,
+                          b = 10,
                           l = 80,
                           r = 80,
-                          t = 60),
+                          t = 40),
                       plot_bgcolor = 'white')
-    fig.update_xaxes(title_font_size = 22,
-                     tickfont_size = 18,
+    fig.update_xaxes(title_font_size = 15,
+                     tickfont_size = 12,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
                      gridcolor = 'lightgray')
-    fig.update_yaxes(title_font_size = 22,
-                     tickfont_size = 18,
+    fig.update_yaxes(title_font_size = 15,
+                     tickfont_size = 12,
                      showline = True, # plot area border line
                      linecolor = 'black', # plot area border line color
                      gridcolor = 'lightgray')
